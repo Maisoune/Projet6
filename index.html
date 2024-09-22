@@ -1,362 +1,160 @@
-// URL de l'API
-const url = 'http://localhost:5678/api/works';
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Sophie Bluel - Architecte d'intérieur</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Work+Sans&display=swap"
+      rel="stylesheet"
+    />
+    <meta name="description" content="" />
+    <link rel="stylesheet" href="./assets/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"
+      integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+  </head>
 
-// Fonction pour récupérer les données et les ajouter à la galerie
-async function getTravaux() {
-    try {
-       
-        const response = await fetch(url);
+  <body>
+    <div class="edition" id="edition" style="display: none">
+      <i class="fa-regular fa-pen-to-square"></i>
+      Mode édition
+    </div>
 
-        
-        if (!response.ok) {
-            throw new Error('Erreur lors de la récupération des données');
-        }
+    <header>
+      <h1>Sophie Bluel <span>Architecte d'intérieur</span></h1>
+      <nav>
+        <ul>
+          <li>projets</li>
+          <li>contact</li>
+          <li id="login-link"><a href="connexion.html">login</a></li>
+          <li><img src="./assets/icons/instagram.png" alt="Instagram" /></li>
+        </ul>
+      </nav>
+    </header>
 
-        const data = await response.json();
+    <main>
+      <section id="introduction">
+        <figure>
+          <img src="./assets/images/sophie-bluel.png" alt="" />
+        </figure>
+        <article>
+          <h2>Designer d'espace</h2>
+          <p>
+            Je raconte votre histoire, je valorise vos idées. Je vous accompagne
+            de la conception à la livraison finale du chantier.
+          </p>
+          <p>
+            Chaque projet sera étudié en commun, de façon à mettre en valeur les
+            volumes, les matières et les couleurs dans le respect de l’esprit
+            des lieux et le choix adapté des matériaux. Le suivi du chantier
+            sera assuré dans le souci du détail, le respect du planning et du
+            budget.
+          </p>
+          <p>
+            En cas de besoin, une équipe pluridisciplinaire peut-être constituée
+            : architecte DPLG, décorateur(trice)
+          </p>
+        </article>
+      </section>
 
-        const gallery = document.getElementById('gallery');
+      <section id="portfolio">
+        <div class="title-container">
+          <h2>Mes Projets</h2>
+          <div id="open-modal" style="display: none">
+            <i class="fa-regular fa-pen-to-square"></i>
+            <span>Modifier</span>
+          </div>
+        </div>
 
-        // Ajouter les travaux à la galerie
-        data.forEach(travail => {
-            const figure = document.createElement('figure');
+        <div id="menu-categories" class="menu-categories"></div>
+        <div class="gallery" id="gallery"></div>
 
-            const img = document.createElement('img');
-            img.src = travail.imageUrl; 
-            img.alt = travail.title; 
+        <div id="modal" class="modal">
+          <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h3>Galerie photo</h3>
+            <div class="gallery" id="modal-gallery"></div>
 
-            const figcaption = document.createElement('figcaption');
-            figcaption.textContent = travail.title;
+            <hr />
 
-            figure.appendChild(img);
-            figure.appendChild(figcaption);
+            <button id="addImageButton">Ajouter une photo</button>
+            <input type="file" id="imageInput" style="display: none" />
+          </div>
+        </div>
 
-            gallery.appendChild(figure);
-        });
-    } catch (error) {
-        // Gérer les erreurs
-        console.error('Erreur:', error);
-    }
-}
+        <div id="add-photo-modal" class="modal">
+          <div class="modal-content">
+            <span class="close-add-photo-button">&times;</span>
+            <h3>Ajout photo</h3>
+            <form id="add-photo-form">
+              <div class="search-file">
+                <i class="fa-regular fa-image"></i>
+                <label for="newImageInput" class="custom-file-upload"
+                  >+ Ajouter une photo</label
+                >
+                <input
+                  type="file"
+                  id="newImageInput"
+                  accept="image/*"
+                  style="display: none"
+                />
+                <span>jpg, png : 4mo max</span>
+              </div>
 
-getTravaux();
+              <h4>Titre</h4>
+              <input type="text" id="imageTitle" required />
 
+              <h4>Catégorie</h4>
+              <div class="dropdown">
+                <select id="imageCategory" class="dropdown-select" required>
+                  <option value="" disabled selected>
+                    Sélectionner une catégorie
+                  </option>
+                  <option value="1">Hôtels et restaurants</option>
+                  <option value="2">Appartements</option>
+                  <option value="3">Objets</option>
+                </select>
+                <span class="dropdown-arrow"></span>
+              </div>
 
-// Fonction pour faire un appel API et récupérer les projets
-async function fetchProjets() {
-    try {
-        const response = await fetch('http://localhost:5678/api/works'); 
-        const projets = await response.json();
-        return projets;
-    } catch (error) {
-        console.error('Erreur lors de la récupération des projets:', error);
-        return [];
-    }
-}
+              <hr />
 
-// Fonction pour générer dynamiquement le menu de catégories
-function genererMenuCategories(projets) {
-    const categories = [...new Set(projets.map(projet => projet.category.name))];
-    const menu = document.getElementById('menu-categories');
+              <button type="button" id="validateAddImageButton">Valider</button>
+            </form>
+          </div>
+        </div>
+      </section>
 
-    // Bouton pour afficher tous les projets
-    const buttonTous = document.createElement('button');
-    buttonTous.textContent = "Tous";
-    buttonTous.addEventListener('click', () => afficherTousProjets(projets));
-    menu.appendChild(buttonTous);
+      <section id="contact">
+        <h2>Contact</h2>
+        <p>Vous avez un projet ? Discutons-en !</p>
+        <form action="#" method="post">
+          <label for="name">Nom</label>
+          <input type="text" name="name" id="name" />
+          <label for="email">Email</label>
+          <input type="email" name="email" id="email" />
+          <label for="message">Message</label>
+          <textarea name="message" id="message" cols="30" rows="10"></textarea>
+          <input type="submit" value="Envoyer" />
+        </form>
+      </section>
+    </main>
 
-    categories.forEach(categorie => {
-        const button = document.createElement('button');
-        button.textContent = categorie;
-        button.addEventListener('click', () => filtrerProjets(projets, categorie));
-        menu.appendChild(button);
-    });
-}
+    <footer>
+      <nav>
+        <ul>
+          <li>Mentions Légales</li>
+        </ul>
+      </nav>
+    </footer>
 
-// Fonction pour afficher tous les projets
-function afficherTousProjets(projets) {
-    const galerie = document.getElementById('gallery');
-    galerie.innerHTML = ''; // Efface le contenu actuel de la galerie
-    projets.forEach(projet => {
-        const div = document.createElement('div');
-        div.className = 'projet';
-        const img = document.createElement('img');
-        img.src = projet.imageUrl;
-        img.alt = projet.title;
-        const titre = document.createElement('p');
-        titre.textContent = projet.title;
-        div.appendChild(img);
-        div.appendChild(titre);
-        galerie.appendChild(div);
-    });
-}
-
-// Fonction pour filtrer les projets par catégorie
-function filtrerProjets(projets, categorie) {
-    const galerie = document.getElementById('gallery');
-    galerie.innerHTML = ''; 
-    const projetsFiltres = projets.filter(projet => projet.category.name === categorie);
-    projetsFiltres.forEach(projet => {
-        const div = document.createElement('div');
-        div.className = 'projet';
-        const img = document.createElement('img');
-        img.src = projet.imageUrl;
-        img.alt = projet.title;
-        const titre = document.createElement('p');
-        titre.textContent = projet.title;
-        div.appendChild(img);
-        div.appendChild(titre);
-        galerie.appendChild(div);
-    });
-}
-
-// Initialisation de la page
-window.onload = async () => {
-    const projets = await fetchProjets();
-    if (projets.length > 0) {
-        genererMenuCategories(projets);
-        afficherTousProjets(projets);
-    } else {
-        console.error('Aucun projet trouvé.');
-    }
-};
-
-
-
-document.addEventListener('DOMContentLoaded', async function () {
-    const url = 'http://localhost:5678/api/works';
-    let travaux = window.localStorage.getItem('travaux');
-
-    if (travaux === null) {
-        try {
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error('Erreur lors de la récupération des données');
-            }
-            travaux = await response.json();
-            const valeurTravaux = JSON.stringify(travaux);
-            window.localStorage.setItem('travaux', valeurTravaux);
-        } catch (error) {
-            console.error('Erreur:', error);
-            travaux = [];
-        }
-    } else {
-        travaux = JSON.parse(travaux);
-    }
-
-    function afficherTravaux(travaux) {
-        const modalGallery = document.getElementById('modal-gallery');
-
-        gallery.innerHTML = '';
-        modalGallery.innerHTML = '';
-
-        travaux.forEach(travail => {
-
-            const figureModal = createFigureElement(travail, true);
-            modalGallery.appendChild(figureModal);
-        });
-    }
-
-    function createFigureElement(travail, withDeleteIcon) {
-        const figure = document.createElement('figure');
-
-        const img = document.createElement('img');
-        img.src = travail.imageUrl;
-        img.alt = travail.title;
-        img.dataset.id = travail.id;
-
-        figure.appendChild(img);
-
-        if (withDeleteIcon) {
-            const deleteIcon = document.createElement('i');
-            deleteIcon.className = 'fa-solid fa-trash-can delete-icon';
-            deleteIcon.onclick = async function () {
-                if (confirm("Voulez-vous supprimer cette image?")) {
-                    try {
-                        await deleteImage(travail.id);
-                        figure.remove();
-                        travaux = travaux.filter(t => t.id !== travail.id);
-                        window.localStorage.setItem('travaux', JSON.stringify(travaux));
-                    } catch (error) {
-                        console.error('Erreur lors de la suppression de l\'image:', error);
-                    }
-                }
-            };
-            figure.appendChild(deleteIcon);
-        }
-
-        return figure;
-    }
-
-    async function deleteImage(id) {
-        const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTY1MTg3NDkzOSwiZXhwIjoxNjUxOTYxMzM5fQ.JGN1p8YIfR-M-5eQ-Ypy6Ima5cKA4VbfL2xMr2MgHm4';
-        try {
-            const response = await fetch(`http://localhost:5678/api/works/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'accept': '*/*',
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            if (!response.ok) {
-                const errorMessage = await response.text();
-                console.error('Erreur lors de la suppression de l\'image:', errorMessage);
-                throw new Error(errorMessage);
-            }
-
-            document.querySelectorAll(`#gallery [data-id="${id}"]`).forEach(img => {
-                img.parentElement.remove();
-            });
-            document.querySelectorAll(`#modal-gallery [data-id="${id}"]`).forEach(img => {
-                img.parentElement.remove();
-            });
-
-        } catch (error) {
-            console.error('Erreur:', error);
-        }
-    }
-
-    async function addNewImage() {
-        const input = document.getElementById('newImageInput');
-        const title = document.getElementById('imageTitle').value;
-        const category = document.getElementById('imageCategory').value;
-
-
-        if (!input.files || !input.files[0]) {
-            console.error('No file selected.');
-            return;
-        }
-
-        const file = input.files[0];
-        const reader = new FileReader();
-
-        reader.onload = async function (e) {
-            const imageUrl = e.target.result;
-            const travail = {
-                imageUrl: imageUrl,
-                title: title,
-                category: category,
-                id: Date.now() 
-            };
-
-            const previewContainer = document.querySelector('.search-file');
-            previewContainer.innerHTML = `<img src="${imageUrl}" alt="Prévisualisation" style="max-width: 100%;">`;
-
-            const figure = createFigureElement(travail, true);
-            document.getElementById('modal-gallery').appendChild(figure);
-
-            const figureIndex = createFigureElement(travail, false);
-            document.getElementById('gallery').appendChild(figureIndex);
-
-            // Upload image to the server
-            await uploadImage(file, title, category);
-
-            // Refresh travaux from the server to get the actual IDs
-            await updateTravauxFromServer();
-        };
-
-        reader.readAsDataURL(file);
-    }
-
-    async function uploadImage(file, title, category) {
-        const formData = new FormData();
-        formData.append('image', file);
-        formData.append('title', title);
-        formData.append('category', category);
-
-        try {
-            const response = await fetch(url, {
-                method: 'POST',
-                body: formData
-            });
-
-            if (!response.ok) {
-                const errorMessage = await response.text();
-                console.error('Erreur lors du téléchargement de l\'image:', errorMessage);
-                throw new Error(errorMessage);
-            }
-
-            const newImage = await response.json();
-            console.log('Nouvelle image ajoutée:', newImage);
-        } catch (error) {
-            console.error('Erreur:', error);
-        }
-    }
-
-    async function updateTravauxFromServer() {
-        try {
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error('Erreur lors de la récupération des données');
-            }
-            const travaux = await response.json();
-            const valeurTravaux = JSON.stringify(travaux);
-            window.localStorage.setItem('travaux', valeurTravaux);
-            afficherTravaux(travaux);
-        } catch (error) {
-            console.error('Erreur:', error);
-        }
-    }
-
-    afficherTravaux(travaux);
-
-    document.getElementById('open-modal').addEventListener('click', function () {
-        document.getElementById('modal').style.display = 'block';
-    });
-
-    document.querySelector('.close-button').addEventListener('click', function () {
-        document.getElementById('modal').style.display = 'none';
-    });
-
-    document.querySelector('.close-add-photo-button').addEventListener('click', function () {
-        document.getElementById('add-photo-modal').style.display = 'none';
-    });
-
-    window.onclick = function (event) {
-        if (event.target == document.getElementById('modal')) {
-            document.getElementById('modal').style.display = 'none';
-        } else if (event.target == document.getElementById('add-photo-modal')) {
-            document.getElementById('add-photo-modal').style.display = 'none';
-        }
-    };
-
-    document.getElementById('addImageButton').addEventListener('click', function () {
-        document.getElementById('add-photo-modal').style.display = 'block';
-        document.getElementById('modal').style.display = 'none';
-    });
-
-    document.getElementById('validateAddImageButton').addEventListener('click', async function () {
-        await addNewImage();
-        // Mise à jour des données dans le localStorage
-        window.localStorage.removeItem('travaux');
-        await updateTravauxFromServer();
-    });
-
-    document.getElementById('newImageInput').addEventListener('change', function (event) {
-        const input = event.target;
-        const previewContainer = document.querySelector('.search-file');
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                const imageUrl = e.target.result;
-                previewContainer.innerHTML = `<img src="${imageUrl}" alt="Prévisualisation" style="max-width: 100%;">`;
-            };
-            reader.readAsDataURL(input.files[0]);
-        }
-    });
-
-    window.addEventListener('load', function () {
-        const isAuthenticated = localStorage.getItem('isAuthenticated');
-
-        if (isAuthenticated === 'true') {
-            document.getElementById('edition').style.display = 'flex';
-            document.getElementById('open-modal').style.display = 'block';
-            document.getElementById('menu-categories').style.display = 'none';
-        } else {
-            document.getElementById('edition').style.display = 'none';
-            document.getElementById('open-modal').style.display = 'none';
-            document.getElementById('menu-categories').style.display = 'block';
-        }
-    });
-});
-
+    <script src="./script.js"></script>
+  </body>
+</html>
